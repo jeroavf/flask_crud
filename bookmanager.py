@@ -1,5 +1,5 @@
 import os 
-from flask import Flask , render_template, request
+from flask import Flask , render_template, request, redirect 
 from flask_sqlalchemy import SQLAlchemy 
 
 
@@ -22,15 +22,44 @@ class Book(db.Model):
 @app.route("/" , methods=["GET","POST"])
 def home():
     if request.form:
-        title=request.form.get("title")
-        book = Book(title=title)
-        db.session.add(book)
-        db.session.commit()
-        print( title )
+        try:
+            title=request.form.get("title")
+            book = Book(title=title)
+            db.session.add(book)
+            db.session.commit()
+            book = None
+            print( title )
+        except Exception as e:
+            db.session.rollback()
+            print("Failed to add a book")
+            print(e)    
         #print(request.form)
 
     books = Book.query.all()     
     return render_template("home.html" , books=books)
+
+@app.route("/update", methods=["POST"] )
+def update():
+    try: 
+        newtitle = request.form.get("newtitle")
+        oldtitle = request.form.get("oldtitle")
+        book = Book.query.filter_by(title=oldtitle).first() 
+        book.title = newtitle
+        db.session.commit()
+    except Exception as e:
+        print("Could not update book") 
+        print(e)
+        db.session.rollback()
+
+    return redirect("/")
+
+@app.route("/delete", methods=["POST"] )
+def delete():
+    title = request.form.get("title")
+    book = Book.query.filter_by(title=title).first()
+    db.session.delete(book)
+    db.session.commit()
+    return redirect("/")
 
 if __name__ == "__main__":
     app.run(debug=True)

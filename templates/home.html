@@ -15,6 +15,7 @@
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
+        <h1> Add book: </h1>
         <form method="POST" action="/">
             <input type="text" name="title">
             <input type="submit" value="Incluir">
@@ -22,9 +23,29 @@
         </form>
 
         <h1> Books available: </h1>
+        <table> 
         {% for book in books %}
+        <tr>
+         <td>   
          <p> {{ book.title }}</p>
+        </td>
+        <td>
+         <form method="POST" action="/update">
+            <input type="hidden" value="{{ book.title }}" name="oldtitle" >
+            <input type="text"   value="{{ book.title }}" name="newtitle" >
+            <input type="submit" value="Update"> 
+         </form>
+        </td>
+        <td>
+         <form method="POST" action="/delete" >
+            <input type="hidden" value="{{ book.title }}" name="title">
+            <input type="submit" value="Delete"> 
+         </form>
+        </td>
+        </tr>
         {% endfor %}
+        </table>
+
         <script src="" async defer></script>
     </body>
 </html>
